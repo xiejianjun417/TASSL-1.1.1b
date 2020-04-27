@@ -1135,11 +1135,19 @@ static int ssl_add_sm2_cert_chain(SSL *s, WPACKET *pkt, CERT_PKEY *cpk, CERT_PKE
             SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_ADD_SM2_CERT_CHAIN, i);
             return 0;
         }
+        /* add signing certificate */
+        if (!ssl_add_cert_to_wpacket(s, pkt, cpk->x509, 0)) {
+            return 0;
+        }
+        /* add key exchange certificate */
+        if (!ssl_add_cert_to_wpacket(s, pkt, enc_cpk->x509, 1)) {
+            return 0;
+        }
         chain_count = sk_X509_num(chain);
-        for (i = 0; i < chain_count; i++) {
+        for (i = 1; i < chain_count; i++) {
             x = sk_X509_value(chain, i);
 
-            if (!ssl_add_cert_to_wpacket(s, pkt, x, i)) {
+            if (!ssl_add_cert_to_wpacket(s, pkt, x, i + 1)) {
                 /* SSLfatal() already called */
                 X509_STORE_CTX_free(xs_ctx);
                 return 0;

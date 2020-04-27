@@ -2340,7 +2340,7 @@ MSG_PROCESS_RETURN tls_process_key_exchange(SSL *s, PACKET *pkt)
         if (!sm2_certs)
             goto err;
         sm2_certs_len = 0;
-        if (!ssl_add_cert_to_buf(sm2_certs, &sm2_certs_len, sk_X509_value(s->session->peer_chain, sk_X509_num(s->session->peer_chain)-1)))
+        if (!ssl_add_cert_to_buf(sm2_certs, &sm2_certs_len, sk_X509_value(s->session->peer_chain, 1))
             goto err;
 #endif
     } else if (alg_k) {
@@ -3160,7 +3160,7 @@ static int tls_construct_cke_sm2ecc(SSL *s, WPACKET *pkt)
         return 0;
     }
 
-    pkey = X509_get0_pubkey(sk_X509_value(s->session->peer_chain, sk_X509_num(s->session->peer_chain)-1)); //get the cert_chain last one ,the enc cert in the last of cert_chain
+    pkey = X509_get0_pubkey(sk_X509_value(s->session->peer_chain, 1); //get the cert_chain last one ,the enc cert in the last of cert_chain
     if (EVP_PKEY_get0_EC_KEY(pkey) == NULL) {
         SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_CONSTRUCT_CKE_SM2ECC,
                  ERR_R_INTERNAL_ERROR);
